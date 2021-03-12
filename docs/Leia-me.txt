@@ -1,0 +1,7 @@
+# A Api roda com Docker, mas se preferir pode-se utilizar o xamp
+
+# Aqui dentro esta o arquivo exportado com as rotas para consumir a api
+# TOKEN -localhost:8000/oauth/token
+# FLIGHTS- localhost:8000/api/v1/admin/flights
+
+# Eu retirei a obrigatoriedade do TOKEN para ficar mais facil de consultar o código desenvolvido
