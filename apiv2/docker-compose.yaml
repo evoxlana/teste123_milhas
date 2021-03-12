@@ -1,0 +1,62 @@
+version: '3'
+services:
+    api-gwlegis-web:
+        build: .
+        container_name: api-gwlegis-web
+        entrypoint:  dockerize -template ./.docker/app/.env:.env -wait tcp://db-api-gwlegis-web:3306 -timeout 40s ./.docker/entrypoint.sh
+        environment:
+            - DB_HOST=db-api-gwlegis-web
+            - DB_PORT=3306
+            - DB_DATABASE=api-gwlegis-web
+            - DB_USERNAME=root
+            - DB_PASSWORD=root
+            - APP_URL=http://localhost:8080
+        volumes:
+            - .:/var/www
+        networks:
+            - api-gwlegis-web-network
+        depends_on:
+            - db-api-gwlegis-web
+            - redis-api-gwlegis-web
+
+    nginx-api-gwlegis-web:
+        build: .docker/nginx
+        container_name: nginx-api-gwlegis-web
+        restart: always
+        tty: true
+        ports:
+            - "8100:80"
+        volumes:
+            - .:/var/www
+        networks:
+            - api-gwlegis-web-network
+        depends_on:
+            - api-gwlegis-web
+    db-api-gwlegis-web:
+        image: mysql:5.7
+        command: --innodb-use-native-aio=0
+        container_name: db-api-gwlegis-web
+        restart: always
+        tty: true
+        ports:
+            - "3306"
+        volumes:
+            - ./.docker/dbdata:/var/lib/mysql
+        environment:
+            - MYSQL_DATABASE=api-gwlegis-web
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_USER=root
+        networks:
+            - api-gwlegis-web-network
+
+    redis-api-gwlegis-web:
+        image: redis:alpine
+        container_name: redis-api-gwlegis-web
+        expose:
+            - 6379
+        networks:
+            - api-gwlegis-web-network
+
+networks:
+    api-gwlegis-web-network:
+        driver: bridge
